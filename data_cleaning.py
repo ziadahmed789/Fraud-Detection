@@ -10,27 +10,23 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-# ==========================================
-# ⚙️ Configuration from Environment
-# ==========================================
+
 SENDER_EMAIL = os.getenv("SENDER_EMAIL", "ziadahmed554433@gmail.com")      
 SENDER_PASSWORD = os.getenv("SENDER_PASSWORD", "caxm mkbs glpf uetk")         
 RECEIVER_EMAIL = os.getenv("RECEIVER_EMAIL", "m.salah.khalil3@gmail.com")    
 KAFKA_BOOTSTRAP = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "kafka:29092")
 MYSQL_HOST = os.getenv("MYSQL_URL", "mysql:3306")
 
-# ==========================================
-# 📧 دالة الإرسال الفوري
-# ==========================================
+
 def send_fraud_alert_email(fraud_df):
     print("📧 Preparing to send Fraud Alert Email...")
     try:
-        # تجهيز الجدول
+        
         fraud_table_html = fraud_df[[
             "TransactionID", "UserID", "Amount", "Location", "Time"
         ]].to_html(index=False, border=1, justify="center")
         
-        # تنسيق الجدول
+        
         fraud_table_html = fraud_table_html.replace(
             '<table border="1" class="dataframe">', 
             '<table style="border-collapse: collapse; width: 100%; border: 1px solid #ddd; font-family: Arial;">'
@@ -66,9 +62,7 @@ def send_fraud_alert_email(fraud_df):
     except Exception as e:
         print(f"❌ Failed to send email: {e}")
 
-# ==========================================
-# 🧠 Feature Engineering
-# ==========================================
+
 def build_features_for_batch(df):
     df = df.copy()
     df["Time"] = pd.to_datetime(df["Time"])
@@ -105,9 +99,7 @@ def build_features_for_batch(df):
         all_rows.append(group)
     return pd.concat(all_rows) if all_rows else df
 
-# ==========================================
-# 🚀 Spark Main
-# ==========================================
+
 print("⏳ Initializing Spark Session...")
 spark = SparkSession.builder \
     .appName("AI_Fraud_Detection") \
@@ -153,27 +145,27 @@ def process_batch(batch_df, batch_id):
     print(f"🔄 Processing Batch {batch_id} with {batch_df.count()} records...")
     
     try:
-        # 1. فلترة البيانات
+        
         batch_df = batch_df.filter(col("Amount").isNotNull())
         pdf = batch_df.toPandas()
         
         if len(pdf) > 0:
-            # 2. تجهيز البيانات (Features)
+            
             print(f"🧠 Building features for {len(pdf)} transactions...")
             proc_pdf = build_features_for_batch(pdf)
             
-            # 3. التوقع (سواء بالموديل أو يدوي)
+           
             if model:
-                # لو الموديل موجود نستخدمه
+                
                 feats = proc_pdf[["Amount", "amount_zscore", "tx_count_5m", "tx_count_1h", "avg_amount_24h", "tod_sin", "tod_cos", "missing_location"]]
                 preds = model.predict(scaler.transform(feats))
                 proc_pdf["Is_Fraud"] = ["YES" if (p == -1 or amt > 2000) else "NO" for p, amt in zip(preds, proc_pdf["Amount"])]
             else:
-                # لو الموديل مش موجود، نستخدم قاعدة يدوية (أي مبلغ أكبر من 2000 يعتبر احتيال)
+                
                 print("⚠️ Using Rule-Based Logic (No Model Found)")
                 proc_pdf["Is_Fraud"] = ["YES" if amt > 2000 else "NO" for amt in proc_pdf["Amount"]]
             
-            # 4. الحفظ في قاعدة البيانات (ده الجزء اللي كان ناقص يتنفذ)
+            
             print("💾 Saving to MySQL...")
             spark_df = spark.createDataFrame(proc_pdf)
             
@@ -189,7 +181,7 @@ def process_batch(batch_df, batch_id):
             
             print(f"✅ Saved {len(proc_pdf)} records to DB.")
             
-            # 5. إرسال الإيميل لو فيه احتيال
+            
             frauds = proc_pdf[proc_pdf["Is_Fraud"] == "YES"]
             if not frauds.empty:
                 print(f"🚨 ALERT: {len(frauds)} Frauds detected! Sending email...")
@@ -202,7 +194,7 @@ def process_batch(batch_df, batch_id):
     except Exception as e:
         print(f"❌ Error in batch {batch_id}: {e}")
 
-# تشغيل الـ Stream
+
 checkpoint_dir = "chk_point_dir" 
 
 query = json_df.writeStream \

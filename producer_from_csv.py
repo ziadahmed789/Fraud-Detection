@@ -1,4 +1,4 @@
-# producer_from_csv.py
+
 import json
 import time
 import os

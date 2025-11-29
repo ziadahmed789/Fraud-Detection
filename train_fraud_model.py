@@ -1,4 +1,4 @@
-# train_fraud_model.py
+
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import IsolationForest
@@ -8,9 +8,7 @@ from collections import defaultdict, deque
 import pickle
 import os
 
-# -----------------------------------------------------------
-# 1) Feature Engineering Functions
-# -----------------------------------------------------------
+
 
 def time_of_day_features(ts):
     sec = ts.hour * 3600 + ts.minute * 60 + ts.second
@@ -29,7 +27,7 @@ def build_features(df):
         group = group.sort_values("Time")
         group = group.reset_index(drop=True)
 
-        # Rolling features manually
+        
         tx_times = group["Time"]
         amounts = group["Amount"]
 
@@ -42,19 +40,19 @@ def build_features(df):
 
             t = tx_times[i]
 
-            # 5 min window
+            
             mask5 = (tx_times >= t - timedelta(minutes=5)) & (tx_times < t)
             tx_count_5m.append(mask5.sum())
 
-            # 1 hour window
+            
             mask1 = (tx_times >= t - timedelta(hours=1)) & (tx_times < t)
             tx_count_1h.append(mask1.sum())
 
-            # 24 hours average
+            
             mask24 = (tx_times >= t - timedelta(hours=24)) & (tx_times <= t)
             avg_amount_24h.append(amounts[mask24].mean())
 
-            # z-score
+            
             mean_amt = amounts[: i + 1].mean()
             std_amt = amounts[: i + 1].std() if amounts[: i + 1].std() > 0 else 1
             amount_z.append((amounts[i] - mean_amt) / std_amt)
@@ -88,9 +86,7 @@ def build_features(df):
     return features, final_df
 
 
-# -----------------------------------------------------------
-# 2) Train Model
-# -----------------------------------------------------------
+
 
 def train_model(input_csv="transactions_unsupervised.csv"):
 
@@ -126,7 +122,7 @@ def train_model(input_csv="transactions_unsupervised.csv"):
     print(" - model_output/model.pkl")
     print(" - model_output/scaler.pkl")
 
-    # Optional evaluation:
+    
     print("\n Testing anomaly scores on first 10 rows:")
     scores = model.decision_function(X_scaled[:10])
     preds = model.predict(X_scaled[:10])
