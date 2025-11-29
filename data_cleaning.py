@@ -102,9 +102,9 @@ def build_features_for_batch(df):
 
 print("⏳ Initializing Spark Session...")
 spark = SparkSession.builder \
-    .appName("AI_Fraud_Detection") \
+    .appName("FraudDetection") \
     .config("spark.sql.adaptive.enabled", "false") \
-    .config("spark.jars.packages", "mysql:mysql-connector-j:8.0.33,org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0") \
+    .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.13:3.5.0,com.mysql:mysql-connector-j:8.0.33") \
     .getOrCreate()
 
 print("🔍 Configuration Check:")

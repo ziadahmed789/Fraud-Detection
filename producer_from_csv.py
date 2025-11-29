@@ -6,7 +6,7 @@ import pandas as pd
 from kafka import KafkaProducer
 
 KAFKA_BOOTSTRAP = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
-CSV_FILE = os.getenv("CSV_FILE", "transactions_unsupervised.csv")
+CSV_FILE = "Data/transactions_unsupervised.csv"
 TOPIC = os.getenv("KAFKA_TOPIC", "transactions")
 
 print(f"🔗 Connecting to Kafka at {KAFKA_BOOTSTRAP}...")
