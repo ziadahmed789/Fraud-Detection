@@ -1,0 +1,10 @@
+pyspark
+kafka-python
+pandas
+numpy
+streamlit
+plotly
+sqlalchemy
+pymysql
+matplotlib
+mysql-connector-python
