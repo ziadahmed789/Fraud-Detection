@@ -45,15 +45,24 @@ Language: Python 3.9+
 Fraud-Detection-System/
 ├── .streamlit/              # Streamlit theme configuration
 │   └── config.toml
+
 ├── data/                    # Source data
 │   └── transactions_unsupervised.csv
+
 ├── model_output/            # Pre-trained models (if applicable)
+
 ├── dashboard.py             # Real-time Visualization App
+
 ├── data_cleaning.py         # Spark ETL & Fraud Detection Logic
+
 ├── producer_from_csv.py     # Kafka Data Producer
+
 ├── train_fraud_model.py     # Model Training Script
+
 ├── docker-compose.yml       # Infrastructure (Kafka, Spark, MySQL)
+
 ├── requirements.txt         # Python Dependencies
+
 └── README.md                # Project Documentation
 
 
